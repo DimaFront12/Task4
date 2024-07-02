@@ -1,55 +1,58 @@
-import { FieldLayout } from './FieldLayout';
-import PropTypes from 'prop-types';
+import { FieldLayout } from "./FieldLayout";
+import { useState, useEffect } from "react";
+import { store } from "../../store/store";
+import { WIN_PATTERNS } from "../../utils/constants";
+import PropTypes from "prop-types";
 
-export const Field = ({
-	field,
-	setField,
-	currentPlayer,
-	setCurrentPlayer,
-	setIsGameEnded,
-	setIsDraw,
-	isGameEnded,
-}) => {
+export const Field = () => {
+	const [state, setState] = useState(store.getState());
+	const { currentPlayer, isGameEnded, field } = store.getState();
 
-	const WIN_PATTERNS = [
-		[0, 1, 2],
-		[3, 4, 5],
-		[6, 7, 8], // Варианты побед по горизонтали
-		[0, 3, 6],
-		[1, 4, 7],
-		[2, 5, 8], // Варианты побед по вертикали
-		[0, 4, 8],
-		[2, 4, 6], // Варианты побед по диагонали
-	];
+	useEffect(() => {
+		const unsubscribe = store.subscribe(() => {
+			setState(store.getState());
+		});
+		return () => unsubscribe();
+	}, []);
 
 	const whoWinner = () => {
+		const { currentPlayer, field } = store.getState();
+
 		const isWin = WIN_PATTERNS.some((pattern) =>
-			pattern.every((item) => field[item] === currentPlayer),
+			pattern.every((item) => field[item] === currentPlayer)
 		);
 
 		if (isWin) {
-			setIsGameEnded(true);
+			store.dispatch({ type: "SET_GAME_ENDED", payload: true });
 		}
 
-		const isNotEmpty = field.every((item) => item !== '');
+		const isNotEmpty = field.every((item) => item !== "");
 
 		if (!isWin && isNotEmpty) {
-			setIsDraw(true);
+			store.dispatch({ type: "SET_IS_DRAW", payload: true });
+			store.dispatch({ type: "SET_GAME_ENDED", payload: true });
 		}
 
 		if (!isWin && !isNotEmpty) {
-			setCurrentPlayer(currentPlayer === 'O' ? 'X' : 'O');
+			store.dispatch({
+				type: "SET_USER",
+				payload: currentPlayer === "O" ? "X" : "O",
+			});
 		}
 	};
 
 	const handleButton = (index) => {
 		field[index] = currentPlayer;
-
-		setField([...field]);
+		store.dispatch({ type: "SET_FIELD", payload: [...field] })
+		whoWinner();
 	};
 
 	return (
-		<FieldLayout field={field} handleButton={handleButton} whoWinner={whoWinner} isGameEnded={isGameEnded}/>
+		<FieldLayout
+			field={field}
+			handleButton={handleButton}
+			isGameEnded={isGameEnded}
+		/>
 	);
 };
 

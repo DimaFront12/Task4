@@ -1,7 +1,7 @@
 import Style from './Field.module.css';
 import PropTypes from 'prop-types';
 
-export const FieldLayout = ({ field, handleButton, whoWinner, isGameEnded }) => {
+export const FieldLayout = ({ field, handleButton, isGameEnded }) => {
 	return (
 		<div className={Style['game-board']}>
 			{field.map((item, index) => (
@@ -14,7 +14,6 @@ export const FieldLayout = ({ field, handleButton, whoWinner, isGameEnded }) => 
 					key={index}
 					onClick={() => {
 						handleButton(index)
-						whoWinner()
 					}}
 					disabled={item || isGameEnded}
 				>

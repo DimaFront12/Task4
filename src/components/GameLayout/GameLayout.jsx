@@ -1,53 +1,30 @@
-import Styles from './GameLayout.module.css';
-import { Information } from '../Information/Information';
-import { Field } from '../Field/Field';
-import PropTypes from 'prop-types';
+import Styles from "./GameLayout.module.css";
+import { Information } from "../Information/Information";
+import { Field } from "../Field/Field";
+import { store } from "../../store/store";
+import { useState, useEffect } from "react";
 
-export const GameLayout = ({
-	isGameEnded,
-	isDraw,
-	currentPlayer,
-	field,
-	setField,
-	setCurrentPlayer,
-	setIsGameEnded,
-	setIsDraw,
-}) => {
+export const GameLayout = () => {
+	const [state, setState] = useState(store.getState());
+
+	useEffect(() => {
+		const unsubscribe = store.subscribe(() => {
+			setState(store.getState());
+		});
+		return () => unsubscribe();
+	}, []);
 
 	const again = () => {
-		setCurrentPlayer('X');
-		setIsGameEnded(false);
-		setIsDraw(false);
-		setField(['', '', '', '', '', '', '', '', '']);
-	}
+		store.dispatch({ type: "RESET_FIELD" })
+		console.log(store.getState())
+	};
 	return (
 		<>
-			<Information
-				isGameEnded={isGameEnded}
-				isDraw={isDraw}
-				currentPlayer={currentPlayer}
-			/>
-			<Field
-				field={field}
-				currentPlayer={currentPlayer}
-				setField={setField}
-				setCurrentPlayer={setCurrentPlayer}
-				setIsGameEnded={setIsGameEnded}
-				setIsDraw={setIsDraw}
-				isGameEnded={isGameEnded}
-			/>
-			<button className={Styles.btn} onClick={again}>Начать заново</button>
+			<Information />
+			<Field />
+			<button className={Styles.btn} onClick={again}>
+				Начать заново
+			</button>
 		</>
 	);
-};
-
-GameLayout.propTypes = {
-	isGameEnded: PropTypes.bool,
-	isDraw: PropTypes.bool,
-	currentPlayer: PropTypes.string,
-	field: PropTypes.array,
-	setField: PropTypes.func,
-	setCurrentPlayer: PropTypes.func,
-	setIsGameEnded: PropTypes.func,
-	setIsDraw: PropTypes.func,
 };
